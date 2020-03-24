@@ -45,7 +45,7 @@
 
   var prac_seed = generate_multi_seq('prac');
   jspsych_session.push({
-    timeline: generate_multi_practice_block(prac_img_src, shuffle(prac_seed), img_ext, task_prompt)
+    timeline: generate_multi_practice_block('multi', prac_img_src, shuffle(prac_seed), img_ext, task_prompt)
   });
 
   var main_seed = generate_multi_seq('HPNt');
@@ -53,7 +53,7 @@
   main_seed = main_seed.concat(generate_multi_seq('LPNt'));
   main_seed = main_seed.concat(generate_multi_seq('LPUr'));
   jspsych_session.push({
-    timeline: generate_main_block(main_img_src, shuffle(main_seed), img_ext, task_prompt)
+    timeline: generate_main_block('multi', main_img_src, shuffle(main_seed), img_ext, task_prompt)
   });
 
   // exit the full screen
