@@ -48,11 +48,10 @@
     timeline: generate_multi_practice_block(prac_img_src, shuffle(prac_seed), img_ext, task_prompt)
   });
 
-  var main_seed = [];
-  main_seed.concat(generate_multi_seq('HPNt'));
-  main_seed.concat(generate_multi_seq('HPUr'));
-  main_seed.concat(generate_multi_seq('LPNt'));
-  main_seed.concat(generate_multi_seq('LPUr'));
+  var main_seed = generate_multi_seq('HPNt');
+  main_seed = main_seed.concat(generate_multi_seq('HPUr'));
+  main_seed = main_seed.concat(generate_multi_seq('LPNt'));
+  main_seed = main_seed.concat(generate_multi_seq('LPUr'));
   jspsych_session.push({
     timeline: generate_main_block(main_img_src, shuffle(main_seed), img_ext, task_prompt)
   });
@@ -67,6 +66,7 @@
     timeline: jspsych_session,
     display_element: document.querySelector('.display_stage'),
     on_finish: function () {
+      save_data();
       if (flag_debug) {
         jsPsych.data.displayData();
       }
