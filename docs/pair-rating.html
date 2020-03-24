@@ -31,7 +31,7 @@
   var instr_url = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/instructions/multi/';
 
   // required clicks should be four
-  var task_prompt = 'Select ' + required_clicks.toString() + ' images that you like.';
+  var task_prompt = 'Select one image that you like better.';
 
   var jspsych_session = [];
 
@@ -41,13 +41,14 @@
     fullscreen_mode: true
   });
 
-  jspsych_session.push(generate_instruction_page(instr_url, 9));
+  //jspsych_session.push(generate_instruction_page(instr_url, 9));
 
   var prac_seed = generate_multi_seq('prac');
   jspsych_session.push({
     timeline: generate_practice_block('multi', prac_img_src, shuffle(prac_seed), img_ext, task_prompt)
   });
 
+  /*
   var main_seed = generate_multi_seq('HPNt');
   main_seed = main_seed.concat(generate_multi_seq('HPUr'));
   main_seed = main_seed.concat(generate_multi_seq('LPNt'));
@@ -55,6 +56,7 @@
   jspsych_session.push({
     timeline: generate_main_block('multi', main_img_src, shuffle(main_seed), img_ext, task_prompt)
   });
+*/
 
   // exit the full screen
   jspsych_session.push({
