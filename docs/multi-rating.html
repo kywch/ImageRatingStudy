@@ -20,7 +20,7 @@
   $('<div class = display_stage></div>').appendTo('body');
 
   sbjId = "test";
-  task_id = "stpsy2_pref_" + main_seq_id;
+  task_id = "multi";
   data_dir = "data01";
 
   var prac_img_src = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/images_prac/';
@@ -41,7 +41,7 @@
     fullscreen_mode: true
   });
 
-  jspsych_session.push(generate_instruction_page(instr_ur, 9));
+  jspsych_session.push(generate_instruction_page(instr_url, 9));
 
   var prac_seq = generate_multi_seq('prac');
   jspsych_session.push({
