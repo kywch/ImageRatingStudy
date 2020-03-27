@@ -28,7 +28,7 @@
   var img_ext = 'jpg';
 
   // instruction should match the task prompt
-  var instr_url = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/instructions/multi/';
+  var instr_url = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/instructions/pairwise/';
 
   // required clicks should be four
   var task_prompt = 'Select one image that you like better.';
@@ -41,7 +41,7 @@
     fullscreen_mode: true
   });
 
-  //jspsych_session.push(generate_instruction_page(instr_url, 9));
+  jspsych_session.push(generate_instruction_page(instr_url, 6));
 
   var prac_seed = generate_pair_seq('prac');
   jspsych_session.push({
