@@ -5,19 +5,9 @@
  * experiments look polished without any additional styles.
  */
 
+@import url("https://cdn.jsdelivr.net/gh/kywch/ImageRatingStudy@master/lib/jspsych.css");
 
-/* Container holding jsPsych content */
-
-@import url(https://fonts.googleapis.com/css?family=Roboto|Raleway|Roboto+Slab) body {
-    font-family: 'Open Sans', 'Arial', sans-serif;
-    font-size: 18px;
-    line-height: 1.6em;
-    margin: 0;
-    padding: 0;
-    max-width: 100%;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
+/* basic text properties */
 
 p {
     clear: both;
@@ -46,55 +36,7 @@ p {
     display: block;
 }
 
-.jspsych-display-element {
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-.jspsych-display-element:focus {
-    outline: none;
-}
-
-.jspsych-content-wrapper {
-    display: flex;
-    margin: auto;
-    flex: 1 1 100%;
-    width: 100%;
-}
-
-.jspsych-content {
-    max-width: 95%;
-    /* this is mainly an IE 10-11 fix */
-    text-align: center;
-    margin: auto;
-    /* this is for overflowing content */
-}
-
-.jspsych-top {
-    align-items: flex-start;
-}
-
-.jspsych-middle {
-    align-items: center;
-}
-
-
-/* fonts and type */
-
-.jspsych-display-element {
-    font-family: 'Open Sans', 'Arial', sans-serif;
-    font-size: 18px;
-    line-height: 1.6em;
-}
-
-
-/* Form elements like input fields and buttons */
-
-.jspsych-display-element input[type="text"] {
-    font-family: 'Open Sans', 'Arial', sans-serif;
-    font-size: 14px;
-}
+/* from the experiment factory code */
 
 .display_stage_background {
     height: 100vh;
@@ -168,60 +110,7 @@ p {
     transform: translateY(-50%);
 }
 
-
-/* image-related operations */
-
-/*
-.zoom {
-    padding: 0px;
-    margin: 0 auto;
-}
-*/
-
-/*
-.zoom:hover {
-    transform: scale(2);
-    transition: transform .1s;
-    transition-delay: 1s;
-}
-*/
-
-/* borrowing Bootstrap style for btn elements, but combining styles a bit */
-
-.jspsych-btn {
-    display: inline-block;
-    padding: 6px 12px;
-    margin: 0px;
-    font-size: 14px;
-    font-weight: 400;
-    font-family: 'Open Sans', 'Arial', sans-serif;
-    cursor: pointer;
-    line-height: 1.4;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    background-image: none;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    color: #333;
-    background-color: #fff;
-    border-color: #ccc;
-}
-
-.jspsych-btn:hover {
-    background-color: #ddd;
-    border-color: #aaa;
-}
-
-.jspsych-btn:disabled {
-    background-color: #eee;
-    color: #aaa;
-    border-color: #ccc;
-    cursor: not-allowed;
-}
-
-
-/* Used for positioning during instructions */
+/* instructions-related CSS */
 
 .jspsych-instructions-nav {
     text-align: center;
@@ -235,9 +124,6 @@ p {
     font-size: 20px;
     line-height: 20px;
 }
-
-
-/* Buttons */
 
 .jspsych-btn,
 #jspsych-instructions-next,
@@ -274,8 +160,7 @@ p {
     background-color: darkblue;
 }
 
-
-/* instruction-related images */
+/* CSS for image-related instructions */
 
 img.resize {
     max-height: 600px;
@@ -283,46 +168,4 @@ img.resize {
     margin-left: auto;
     margin-right: auto;
     object-fit: contain;
-}
-
-
-/* jsPsych progress bar */
-
-#jspsych-progressbar-container {
-    color: #555;
-    border-bottom: 1px solid #dedede;
-    background-color: #f9f9f9;
-    margin-bottom: 1em;
-    text-align: center;
-    padding: 8px 0px;
-    width: 100%;
-    line-height: 1em;
-}
-
-#jspsych-progressbar-container span {
-    font-size: 14px;
-    padding-right: 14px;
-}
-
-#jspsych-progressbar-outer {
-    background-color: #eee;
-    width: 50%;
-    margin: auto;
-    height: 14px;
-    display: inline-block;
-    vertical-align: middle;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-#jspsych-progressbar-inner {
-    background-color: #aaa;
-    width: 0%;
-    height: 100%;
-}
-
-
-/* Control appearance of jsPsych.data.displayData() */
-
-#jspsych-data-display {
-    text-align: left;
 }
