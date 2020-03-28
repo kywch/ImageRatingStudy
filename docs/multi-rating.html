@@ -29,6 +29,7 @@
 
   // instruction should match the task prompt
   var instr_url = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/instructions/multi/';
+  var instr_imglist = get_instruction_imglist(instr_url, 9);
 
   // required clicks should be four
   var task_prompt = 'Select ' + required_clicks.toString() + ' images that you like.';
@@ -41,7 +42,7 @@
     fullscreen_mode: true
   });
 
-  jspsych_session.push(generate_instruction_page(instr_url, 9));
+  jspsych_session.push(generate_instruction_page(instr_imglist));
 
   var prac_seed = generate_multi_seq('prac');
   jspsych_session.push({
@@ -64,11 +65,38 @@
 
   jsPsych.init({
     timeline: jspsych_session,
+    preload_images: instr_imglist,
+
     display_element: document.querySelector('.display_stage'),
+
+    on_data_update: function (data) { // each time the data is updated:
+      // write the current window resolution to the data
+      data.win_res = window.innerWidth + 'x' + window.innerHeight;
+      data.fullscr = fullscr_ON;
+    },
+
+    on_interaction_data_update: function (data) {
+      //interaction data logs if participants leaves the browser window or exits full screen mode
+      interaction = data.event;
+      if (interaction.includes("fullscreen")) {
+        // some unhandy coding to circumvent a bug in jspsych that logs fullscreenexit when actually entering
+        if (fullscr_ON == 'no') {
+          fullscr_ON = 'yes';
+          return fullscr_ON;
+        } else if (fullscr_ON == 'yes') {
+          fullscr_ON = 'no';
+          return fullscr_ON;
+        }
+      } else if (interaction == 'blur' || interaction == 'focus') {
+        focus = interaction;
+        return focus;
+      }
+    },
+
     on_finish: function () {
       save_data();
       if (flag_debug) {
-        jsPsych.data.displayData();
+        console.log(jsPsych.data.get().json());
       }
     }
   });
