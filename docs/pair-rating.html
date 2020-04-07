@@ -31,8 +31,58 @@
   var instr_url = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/instructions/pairwise/';
   var instr_imglist = get_instruction_imglist(instr_url, 6);
 
-  // required clicks should be four
+  // required clicks should be one
   var task_prompt = 'Select one image that you like better.';
+
+  // The prefix of the images should be passed along
+  function generate_pair_seq(prefix) {
+    /*
+        Preparing 24 pair-wise rating trials
+        Input: 46 images
+        Output: 23 image pairs without any attention check trials
+    */
+    var attn_idx = 99;
+    var pair_seed = shuffle(range(1, 46));
+
+    if (prefix == 'prac') {
+      // sequence for the practice. prepare 6 trials
+      var pair_seed2 = pair_seed.slice(0, 12);
+      pair_seed2.reshape(6, 2);
+      /*
+      pair_seed2[4][0] = attn_idx;
+      pair_seed2[5][1] = attn_idx;
+      pair_seed2[6][0] = attn_idx;
+      pair_seed2[7][1] = attn_idx;
+      */
+      pair_seed2 = shuffle(pair_seed2);
+    } else {
+      /*
+      var pair_seed2 = shuffle(pair_seed.slice(0, 23).concat(attn_idx));
+      pair_seed2 = pair_seed2.concat(shuffle(pair_seed.slice(23, 46).concat(attn_idx)));
+      */
+      var pair_seed2 = pair_seed;
+      pair_seed2.reshape(23, 2);
+      pair_seed2 = shuffle(pair_seed2);
+    }
+
+    var pair_seq = [];
+    for (var ii = 0; ii < pair_seed2.length; ii++) {
+      var pair_trial = [pair_seed2[ii]];
+      if (Math.max(...pair_seed2[ii]) == attn_idx) {
+        // this trial includes the attention-check trial
+        pair_seq.push({
+          'image_array': pair_trial.map(row => row.map(el => prefix + el.toString().padStart(2, '0'))),
+          'attention_check': prefix + attn_idx.toString()
+        })
+      } else {
+        // this trial does not include the attention-check trial
+        pair_seq.push({
+          'image_array': pair_trial.map(row => row.map(el => prefix + el.toString().padStart(2, '0'))),
+        })
+      }
+    }
+    return pair_seq;
+  }
 
   var jspsych_session = [];
 
