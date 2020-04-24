@@ -143,6 +143,11 @@
         return focus;
       }
     },
+    
+    exclusions: { // browser window needs to have these dimensions, if not, participants get the chance to maximize their window, if they don't support this resolution when maximized they can't particiate.
+      min_width: 1200,
+      min_height: 700
+    },
 
     on_finish: function () {
       save_data();
