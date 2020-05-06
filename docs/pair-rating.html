@@ -6,8 +6,8 @@
   <meta name="robots" content="noindex">
   <link rel="stylesheet" href="https://users.rcc.uchicago.edu/~kywch/ImageRatingStudy/lib/image-rating-study.css">
   </link>
-
   <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/4.0.30/Dropbox-sdk.min.js"></script>  
   <script src="https://cdn.jsdelivr.net/gh/kywch/ImageRatingStudy@master/lib/jspsych.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/kywch/ImageRatingStudy@master/lib/jspsych-fullscreen.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/kywch/ImageRatingStudy@master/lib/jspsych-instructions.js"></script>
@@ -23,8 +23,15 @@
 
   sbjId = "test";
   task_id = "pair";
-  data_dir = "data01";
 
+  // Dropbox-related variables
+  // YOU MUST GET YOUR OWN DROPBOX ACCESS TOKEN for uploading the file to your dropbox
+  // from https://dropbox.github.io/dropbox-api-v2-explorer/#files_upload
+  dropbox_access_token = '';
+  dropbox_save_folder = ''
+  save_filename = task_id + '_' + sbjId + '.json';
+
+  // stimuli locations
   var prac_img_src = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/images_prac/';
   var main_img_src = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/images_main/';
   var img_ext = 'jpg';
