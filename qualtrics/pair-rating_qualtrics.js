@@ -54,8 +54,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
         // YOU MUST GET YOUR OWN DROPBOX ACCESS TOKEN for uploading the file to your dropbox
         // from https://dropbox.github.io/dropbox-api-v2-explorer/#files_upload
         dropbox_access_token = '';
-        dropbox_save_folder = ''; // for example, '/data/<this_study>'
-        save_filename = task_id + '_' + sbjId + '.json';
+        // the data_folder below should be replaced with the actual data folder
+        save_filename = '/data_folder/' + task_id + '_' + sbjId + '.json';
 
         var prac_img_src = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/images_prac/';
         var main_img_src = 'https://raw.githubusercontent.com/kywch/ImageRatingStudy/master/images_main/';
