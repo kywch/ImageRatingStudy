@@ -5,7 +5,7 @@
  * experiments look polished without any additional styles.
  */
 
-@import url("https://cdn.jsdelivr.net/gh/kywch/ImageRatingStudy@master/lib/jspsych.css");
+@import url("jspsych-6.1.0/css/jspsych.css");
 
 /* basic text properties */
 
