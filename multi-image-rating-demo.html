@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Pairwise Image Rating Task</title>
+  <meta name="robots" content="noindex">
+
+  <!-- Step 1. Define and load required resources -->
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <script src='lib/jspsych-6.1.0/jspsych.js'></script>
+  <script src='lib/jspsych-6.1.0/plugins/jspsych-fullscreen.js'></script>
+  <script src='lib/jspsych-6.1.0/plugins/jspsych-instructions.js'></script>
+  <script src='lib/jspsych-image-rating.js'></script>
+  <script src='lib/image-rating_main.js'></script>
+</head>
+
+<body>
+
+  <!-- Step 2: Add `display_stage` CSS, DIV, and extra scripts for Qualtrics -->
+  <!-- COPY PASTE TO QUALTRICS FROM HERE -->
+  <link href="https://kywch.github.io/ImageRatingStudy/lib/image-rating.css" rel="stylesheet" type="text/css">
+  </link>
+  <div>
+    <span style="font-size: 24px;">
+      <br><br>
+      If you are seeing this message for <span style="color: rgb(255, 0, 0);">
+        <b>more than 5 minutes</b></span>,<br>
+      please screen-capture this screen and send the image to us.
+      <br><br>
+      <span style="font-size: 28px;">We are very sorry for the inconvenience.</span>
+    </span>
+  </div>
+
+  <style>
+    #display_stage_background {
+      width: 100vw;
+      background-color: white;
+      z-index: -1;
+    }
+
+    #display_stage {
+      position: fixed;
+      left: 1vw;
+      top: 1vh;
+      height: 98vh;
+      width: 98vw;
+      background-color: white;
+      box-shadow: 1px 1px 1px #999;
+      border-radius: 15px;
+      z-index: 0;
+      overflow-y: hidden;
+      overflow-x: hidden;
+    }
+  </style>
+  <!-- COPY PASTE TO QUALTRICS UP TO HERE -->
+
+  <div id='display_stage_background'></div>
+  <div id='display_stage'></div>
+
+</body>
+
+<script>
+  /* Step 3: Define image locations and a helper functions making generating trial sequence */
+  // stimuli locations
+  var prac_img_src = 'https://kywch.github.io/ImageRatingStudy/images_prac/';
+  var main_img_src = 'https://kywch.github.io/ImageRatingStudy/images_main/';
+  var img_ext = 'jpg';
+
+  // instruction should match the task prompt
+  var instr_url = 'https://kywch.github.io/ImageRatingStudy/instruction_multi/';
+  var instr_imglist = get_instruction_imglist(instr_url, 9);
+
+  // required clicks should be four
+  var task_prompt = 'Select ' + required_clicks_multi.toString() + ' images that you like.';
+
+  // The prefix of the images should be passed along
+  function generate_multi_seq(prefix) {
+    /*
+        Preparing 4 multi-image rating trials
+        46 images & one attention check image should be prepared in advance
+        The attention check image is shown twice
+    */
+    var attn_idx = 99;
+    var multi_seed = shuffle(range(1, 46));
+    var multi_trial = [];
+    multi_trial[0] = shuffle(multi_seed.slice(0, 12));
+    multi_trial[1] = shuffle(multi_seed.slice(12, 24));
+    multi_trial[2] = shuffle(multi_seed.slice(24, 35).concat(attn_idx));
+    multi_trial[3] = shuffle(multi_seed.slice(35, 46).concat(attn_idx));
+
+    var multi_seq = [];
+    for (var ii = 0; ii < multi_trial.length; ii++) {
+      if (Math.max(...multi_trial[ii]) == attn_idx) {
+        // this trial includes the attention-check trial
+        multi_trial[ii].reshape(3, 4);
+        multi_seq.push({
+          'image_array': multi_trial[ii].map(row => row.map(el => prefix + el.toString().padStart(2, '0'))),
+          'attention_check': prefix + attn_idx.toString()
+        })
+      } else {
+        // this trial does not include the attention-check trial
+        multi_trial[ii].reshape(3, 4);
+        multi_seq.push({
+          'image_array': multi_trial[ii].map(row => row.map(el => prefix + el.toString().padStart(2, '0')))
+        })
+      }
+    }
+    return shuffle(multi_seq);
+  }
+
+  /* Step 4: Define the experiment flow */
+  // NOTE that the functions used below are defined in `image-rating_main.js` for readability
+  var jspsych_session = [];
+
+  // use the full screen
+  jspsych_session.push({
+    type: 'fullscreen',
+    fullscreen_mode: true
+  });
+
+  jspsych_session.push(generate_instruction_page(instr_imglist));
+
+  var prac_seed = generate_multi_seq('prac');
+  jspsych_session.push({
+    timeline: generate_practice_block('multi', prac_img_src, shuffle(prac_seed), img_ext, task_prompt)
+  });
+
+  var main_seed = generate_multi_seq('HPNt');
+  main_seed = main_seed.concat(generate_multi_seq('HPUr'));
+  main_seed = main_seed.concat(generate_multi_seq('LPNt'));
+  main_seed = main_seed.concat(generate_multi_seq('LPUr'));
+  jspsych_session.push({
+    timeline: generate_main_block('multi', main_img_src, shuffle(main_seed), img_ext, task_prompt)
+  });
+
+  // exit the full screen
+  jspsych_session.push({
+    type: 'fullscreen',
+    fullscreen_mode: false
+  });
+
+  /* Step 5: Run the experiment. */
+  jsPsych.init({
+    timeline: jspsych_session,
+    preload_images: instr_imglist,
+
+    display_element: 'display_stage',
+
+    exclusions: { // browser window needs to have these dimensions, if not, participants get the chance to maximize their window, if they don't support this resolution when maximized they can't particiate.
+      min_width: 1200,
+      min_height: 700
+    },
+
+    on_finish: function () {
+      // csv-like string: delimiter - space (' '), newline - semicolon (';')
+      // result_string contains: 'trial image11 image12 click rt;'
+      console.log(result_string);
+
+      // Also display in the result page as well
+      var display_element = jsPsych.getDisplayElement();
+      display_element.innerHTML = "Results will be stored as a single string variable with a csv-like formatting<br>" + 
+        "so that it can easily saved into Qualtrics Embedded Data.<p>" +
+        "delimiter - space (' '), newline - semicolon (';')<p>" +
+        "<b>Result string ==></b> " + result_string;
+    }
+  });
+</script>
+
+</html>

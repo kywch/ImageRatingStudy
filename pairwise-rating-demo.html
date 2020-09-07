@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Pairwise Image Rating Task</title>
+  <meta name="robots" content="noindex">
+
+  <!-- Step 1. Define and load required resources -->
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <script src='lib/jspsych-6.1.0/jspsych.js'></script>
+  <script src='lib/jspsych-6.1.0/plugins/jspsych-fullscreen.js'></script>
+  <script src='lib/jspsych-6.1.0/plugins/jspsych-instructions.js'></script>
+  <script src='lib/jspsych-image-rating.js'></script>
+  <script src='lib/image-rating_main.js'></script>
+</head>
+
+<body>
+
+  <!-- Step 2: Add `display_stage` CSS, DIV, and extra scripts for Qualtrics -->
+  <!-- COPY PASTE TO QUALTRICS FROM HERE -->
+  <link href="https://kywch.github.io/ImageRatingStudy/lib/image-rating.css" rel="stylesheet" type="text/css">
+  </link>
+  <div>
+    <span style="font-size: 24px;">
+      <br><br>
+      If you are seeing this message for <span style="color: rgb(255, 0, 0);">
+        <b>more than 5 minutes</b></span>,<br>
+      please screen-capture this screen and send the image to us.
+      <br><br>
+      <span style="font-size: 28px;">We are very sorry for the inconvenience.</span>
+    </span>
+  </div>
+
+  <style>
+    #display_stage_background {
+      width: 100vw;
+      background-color: white;
+      z-index: -1;
+    }
+
+    #display_stage {
+      position: fixed;
+      left: 1vw;
+      top: 1vh;
+      height: 98vh;
+      width: 98vw;
+      background-color: white;
+      box-shadow: 1px 1px 1px #999;
+      border-radius: 15px;
+      z-index: 0;
+      overflow-y: hidden;
+      overflow-x: hidden;
+    }
+  </style>
+  <!-- COPY PASTE TO QUALTRICS UP TO HERE -->
+
+  <div id='display_stage_background'></div>
+  <div id='display_stage'></div>
+
+</body>
+
+<script>
+  /* Step 3: Define image locations and a helper functions making generating trial sequence */
+  // stimuli locations
+  var prac_img_src = 'https://kywch.github.io/ImageRatingStudy/images_prac/';
+  var main_img_src = 'https://kywch.github.io/ImageRatingStudy/images_main/';
+  var img_ext = 'jpg';
+
+  // instruction should match the task prompt
+  var instr_url = 'https://kywch.github.io/ImageRatingStudy/instruction_pairwise/';
+  var instr_imglist = get_instruction_imglist(instr_url, 6);
+
+  var task_prompt = 'Select one image that you like better.';
+
+  // The prefix of the images should be passed along
+  function generate_pair_seq(prefix) {
+    /*
+        Preparing 24 pair-wise rating trials
+        Input: 46 images
+        Output: 23 image pairs without any attention check trials
+    */
+    var attn_idx = 99;
+    var pair_seed = shuffle(range(1, 46));
+
+    if (prefix == 'prac') {
+      // sequence for the practice. prepare 6 trials
+      var pair_seed2 = pair_seed.slice(0, 12);
+      pair_seed2.reshape(6, 2);
+      pair_seed2 = shuffle(pair_seed2);
+    } else {
+      /*
+      var pair_seed2 = shuffle(pair_seed.slice(0, 23).concat(attn_idx));
+      pair_seed2 = pair_seed2.concat(shuffle(pair_seed.slice(23, 46).concat(attn_idx)));
+      */
+      var pair_seed2 = pair_seed;
+      pair_seed2.reshape(23, 2);
+      pair_seed2 = shuffle(pair_seed2);
+    }
+
+    var pair_seq = [];
+    for (var ii = 0; ii < pair_seed2.length; ii++) {
+      var pair_trial = [pair_seed2[ii]];
+      if (Math.max(...pair_seed2[ii]) == attn_idx) {
+        // this trial includes the attention-check trial
+        pair_seq.push({
+          'image_array': pair_trial.map(row => row.map(el => prefix + el.toString().padStart(2, '0'))),
+          'attention_check': prefix + attn_idx.toString()
+        })
+      } else {
+        // this trial does not include the attention-check trial
+        pair_seq.push({
+          'image_array': pair_trial.map(row => row.map(el => prefix + el.toString().padStart(2, '0'))),
+        })
+      }
+    }
+    return pair_seq;
+  }
+
+  /* Step 4: Define the experiment flow */
+  // NOTE that the functions used below are defined in `image-rating_main.js` for readability
+  var jspsych_session = [];
+
+  // use the full screen
+  jspsych_session.push({
+    type: 'fullscreen',
+    fullscreen_mode: true
+  });
+
+  jspsych_session.push(generate_instruction_page(instr_imglist));
+
+  // the trial sequence is generated using the above helper function
+  var prac_seed = generate_pair_seq('prac');
+  jspsych_session.push({
+    timeline: generate_practice_block('pair', prac_img_src, shuffle(prac_seed), img_ext, task_prompt)
+  });
+
+  // the trial sequence is generated using the above helper function
+  var main_seed = generate_pair_seq('HPNt');
+  main_seed = main_seed.concat(generate_pair_seq('HPUr'));
+  main_seed = main_seed.concat(generate_pair_seq('LPNt'));
+  main_seed = main_seed.concat(generate_pair_seq('LPUr'));
+  jspsych_session.push({
+    timeline: generate_main_block('pair', main_img_src, shuffle(main_seed), img_ext, task_prompt)
+  });
+
+  // exit the full screen
+  jspsych_session.push({
+    type: 'fullscreen',
+    fullscreen_mode: false
+  });
+
+  /* Step 5: Run the experiment. */
+  jsPsych.init({
+    timeline: jspsych_session,
+    preload_images: instr_imglist,
+
+    display_element: 'display_stage',
+
+    exclusions: { // browser window needs to have these dimensions, if not, participants get the chance to maximize their window, if they don't support this resolution when maximized they can't particiate.
+      min_width: 1200,
+      min_height: 700
+    }, 
+
+    on_finish: function () {
+      // csv-like string: delimiter - space (' '), newline - semicolon (';')
+      // result_string contains: 'trial image11 image12 click rt;'
+      console.log(result_string);
+
+      // Also display in the result page as well
+      var display_element = jsPsych.getDisplayElement();
+      display_element.innerHTML = "Results will be stored as a single string variable with a csv-like formatting<br>" + 
+        "so that it can easily saved into Qualtrics Embedded Data.<p>" +
+        "delimiter - space (' '), newline - semicolon (';')<p>" +
+        "<b>Result string ==></b> " + result_string;
+    }
+  });
+</script>
+
+</html>
